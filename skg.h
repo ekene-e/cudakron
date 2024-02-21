@@ -14,7 +14,8 @@ typedef struct EDGE
 	float w;
 }edge;
 #ifdef _GPU
-edge* create_edge_list_gpu(long*, long , long , int , block* , int**, float *);
+edge* create_edge_list_gpu(long*,
+	long , long , int , block* , int**, float *);
 #endif
 typedef struct CSR_MATRIX
 {

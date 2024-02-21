@@ -61,8 +61,13 @@ long calculate_edges(long *edges_dist, int n)
 	return edges;
 }
 
-void stochastic_Kronecker_graph(edge *edge_list, long pe_edges, long dim, long start_idx, float *prob, float *c_prob, int *node_edge_count)
-{
+void stochastic_Kronecker_graph(edge *edge_list,
+								long pe_edges,
+								long dim,
+								long start_idx,
+								float *prob,
+								float *c_prob,
+								int *node_edge_count) {
 	int rank;
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	srand(start_idx+rank);
@@ -91,8 +96,13 @@ void stochastic_Kronecker_graph(edge *edge_list, long pe_edges, long dim, long s
 		node_edge_count[row]++;
 	}
 }
-edge* create_edge_list(long *edges_dist, long pe_edges, long nodes_per_pe, int npes, block *mat_prob, int **node_edge_count)
-{
+
+edge* create_edge_list(long *edges_dist,
+					   long pe_edges,
+					   long nodes_per_pe,
+					   int npes,
+					   block *mat_prob,
+					   int **node_edge_count) {
 	edge *edge_list = (edge*)malloc((size_t)pe_edges*sizeof(edge));
 	int i;
 	*node_edge_count = (int*)calloc(nodes_per_pe, sizeof(int));
@@ -104,14 +114,26 @@ edge* create_edge_list(long *edges_dist, long pe_edges, long nodes_per_pe, int n
 	{
 		block_edges = edges_dist[npes-1-i];
 		start_idx = nodes_per_pe*(npes-1-i);
-		stochastic_Kronecker_graph(&edge_list[idx], block_edges, nodes_per_pe, start_idx, prob, c_prob, *node_edge_count);
+		stochastic_Kronecker_graph(&edge_list[idx],
+									block_edges,
+									nodes_per_pe,
+									start_idx,
+									prob,
+									c_prob,
+									*node_edge_count);
 		idx += block_edges;
 	}
 	return edge_list;
 }
-csr_data* create_csr_data(edge *edge_list, int *node_edge_count, long pe_edges, long nodes_per_pe, long* edge_count)
-{
-	size_t n = (size_t)sizeof(csr_data)+(nodes_per_pe+1)*sizeof(long) + pe_edges*(sizeof(long) + sizeof(float));
+
+csr_data* create_csr_data(edge *edge_list,
+						  int *node_edge_count,
+						  long pe_edges,
+						  long nodes_per_pe,
+						  long* edge_count) {
+	size_t n = (size_t)sizeof(csr_data)
+				+(nodes_per_pe+1)*sizeof(long)
+				+ pe_edges*(sizeof(long) + sizeof(float));
 	csr_data *csr_mat = (csr_data*)malloc(n);
 	csr_mat->edges = pe_edges;
 	csr_mat->nodes = nodes_per_pe;
@@ -145,7 +167,8 @@ csr_data* create_csr_data(edge *edge_list, int *node_edge_count, long pe_edges, 
 		csr_mat->val_ptr[idx] = edge_list[i].w;
 	}
 	for(i=0;i<nodes_per_pe;i++)
-		std::sort(&csr_mat->col_ptr[csr_mat->row_ptr[i]], &csr_mat->col_ptr[csr_mat->row_ptr[i+1]]);
+		std::sort(&csr_mat->col_ptr[csr_mat->row_ptr[i]],
+					&csr_mat->col_ptr[csr_mat->row_ptr[i+1]]);
 
 	free(node_edge_count);
 	free(edge_list);
@@ -153,7 +176,12 @@ csr_data* create_csr_data(edge *edge_list, int *node_edge_count, long pe_edges, 
 }
 
 //for validation
-void print_edge_list(edge *edge_list, long pe_edges, int *node_edge_count, long nodes_per_pe, long *edges_dist, int npes)
+void print_edge_list(edge *edge_list,
+					 long pe_edges,
+					 int *node_edge_count,
+					 long nodes_per_pe,
+					 long *edges_dist,
+					 int npes)
 {
 	printf("edges: %ld, nodes_per_pe: %d\n", pe_edges, nodes_per_pe);
 	for(int i=0;i<pe_edges;i++) printf("%d (%ld -> %ld)\n", i, edge_list[i].v, edge_list[i].u);
@@ -174,8 +202,12 @@ void print_csr(csr_data* csr_mat)
 		printf("\n");
 	}
 }
-void file_write(const char* file_name, MPI_Datatype datatype, MPI_Offset offset, void* buffer, int num_elems, int rank)
-{
+void file_write(const char* file_name,
+				MPI_Datatype datatype,
+				MPI_Offset offset,
+				void* buffer,
+				int num_elems,
+				int rank) {
 	MPI_File handle;
 	MPI_Status status;
 	int access_mode = MPI_MODE_CREATE | MPI_MODE_RDWR;
