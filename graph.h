@@ -62,12 +62,12 @@ long calculate_edges(long *edges_dist, int n)
 }
 
 void stochastic_Kronecker_graph(edge *edge_list,
-								long pe_edges,
-								long dim,
-								long start_idx,
-								float *prob,
-								float *c_prob,
-								int *node_edge_count) {
+			long pe_edges,
+			long dim,
+			long start_idx,
+			float *prob,
+			float *c_prob,
+			int *node_edge_count) {
 	int rank;
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	srand(start_idx+rank);
@@ -98,11 +98,11 @@ void stochastic_Kronecker_graph(edge *edge_list,
 }
 
 edge* create_edge_list(long *edges_dist,
-					   long pe_edges,
-					   long nodes_per_pe,
-					   int npes,
-					   block *mat_prob,
-					   int **node_edge_count) {
+			long pe_edges,
+			long nodes_per_pe,
+			int npes,
+			block *mat_prob,
+			int **node_edge_count) {
 	edge *edge_list = (edge*)malloc((size_t)pe_edges*sizeof(edge));
 	int i;
 	*node_edge_count = (int*)calloc(nodes_per_pe, sizeof(int));
@@ -115,12 +115,12 @@ edge* create_edge_list(long *edges_dist,
 		block_edges = edges_dist[npes-1-i];
 		start_idx = nodes_per_pe*(npes-1-i);
 		stochastic_Kronecker_graph(&edge_list[idx],
-									block_edges,
-									nodes_per_pe,
-									start_idx,
-									prob,
-									c_prob,
-									*node_edge_count);
+					block_edges,
+					nodes_per_pe,
+					start_idx,
+					prob,
+					c_prob,
+					*node_edge_count);
 		idx += block_edges;
 	}
 	return edge_list;
@@ -177,11 +177,11 @@ csr_data* create_csr_data(edge *edge_list,
 
 //for validation
 void print_edge_list(edge *edge_list,
-					 long pe_edges,
-					 int *node_edge_count,
-					 long nodes_per_pe,
-					 long *edges_dist,
-					 int npes)
+		long pe_edges,
+		int *node_edge_count,
+		long nodes_per_pe,
+		long *edges_dist,
+		int npes)
 {
 	printf("edges: %ld, nodes_per_pe: %d\n", pe_edges, nodes_per_pe);
 	for(int i=0;i<pe_edges;i++) printf("%d (%ld -> %ld)\n", i, edge_list[i].v, edge_list[i].u);
@@ -203,11 +203,11 @@ void print_csr(csr_data* csr_mat)
 	}
 }
 void file_write(const char* file_name,
-				MPI_Datatype datatype,
-				MPI_Offset offset,
-				void* buffer,
-				int num_elems,
-				int rank) {
+		MPI_Datatype datatype,
+		MPI_Offset offset,
+		void* buffer,
+		int num_elems,
+		int rank) {
 	MPI_File handle;
 	MPI_Status status;
 	int access_mode = MPI_MODE_CREATE | MPI_MODE_RDWR;

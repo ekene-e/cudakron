@@ -9,21 +9,21 @@
 // Function prototypes
 void PrintHelp(const std::string& option = "");
 void SetParameters(int argc,
-				   char** argv,
-				   int& scalingFactor,
-				   int& edgeFactor,
-				   Block& matProb,
-				   long& matSize);
+            char** argv,
+            int& scalingFactor,
+            int& edgeFactor,
+            Block& matProb,
+            long& matSize);
 void PrintParameters(const int& scalingFactor,
-					const long& matSize,
-					const Block& matProb,
-					const long& nodesPerPe,
-					const int& matBlocks,
-					const int edgeFactor,
-					const TimeStats& graphTime,
-					const TimeStats& csrTime,
-					const TimeStats& IOTime,
-					const long totalEdges);
+            const long& matSize,
+            const Block& matProb,
+            const long& nodesPerPe,
+            const int& matBlocks,
+            const int edgeFactor,
+            const TimeStats& graphTime,
+            const TimeStats& csrTime,
+            const TimeStats& IOTime,
+            const long totalEdges);
 
 int main(int argc, char** argv) {
     MPI_Init(&argc, &argv);
@@ -51,27 +51,27 @@ int main(int argc, char** argv) {
     Edge* edgeList = nullptr;
     TimeStats graphTime, csrTime, IOTime;
     long totalEdges = PerformGraphOperations(edgeList,
-											nodeEdgeCount,
-											peEdges,
-											nodesPerPe,
-											npes,
-											matProb,
-											rank,
-											graphTime,
-											csrTime,
-											IOTime);
+                            nodeEdgeCount,
+                            peEdges,
+                            nodesPerPe,
+                            npes,
+                            matProb,
+                            rank,
+                            graphTime,
+                            csrTime,
+                            IOTime);
 
     if (!rank) {
         PrintParameters(scalingFactor,
-						matSize,
-						matProb,
-						nodesPerPe,
-						matBlocks,
-						edgeFactor,
-						graphTime,
-						csrTime,
-						IOTime,
-						totalEdges);
+                    matSize,
+                    matProb,
+                    nodesPerPe,
+                    matBlocks,
+                    edgeFactor,
+                    graphTime,
+                    csrTime,
+                    IOTime,
+                    totalEdges);
     }
 
     MPI_Finalize();
@@ -136,15 +136,15 @@ void SetParameters(int argc,
 }
 
 void PrintParameters(const int& scalingFactor,
-					 const long& matSize,
-					 const Block& matProb,
-					 const long& nodesPerPe,
-					 const int& matBlocks,
-					 const int edgeFactor,
-					 const TimeStats& graphTime,
-					 const TimeStats& csrTime,
-					 const TimeStats& IOTime,
-					 const long totalEdges) {
+                const long& matSize,
+                const Block& matProb,
+                const long& nodesPerPe,
+                const int& matBlocks,
+                const int edgeFactor,
+                const TimeStats& graphTime,
+                const TimeStats& csrTime,
+                const TimeStats& IOTime,
+                const long totalEdges) {
     std::cout << "Scaling factor: " << scalingFactor << "\n";
     std::cout << "Matrix size: " << matSize << "\n";
     std::cout << "Probability matrix (a: " << std::fixed << std::setprecision(3) << matProb.a

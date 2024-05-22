@@ -23,14 +23,14 @@ inline void gpuAssert(cudaError_t code, const char *file, int line, bool abort=t
 
 // Kernel to generate stochastic Kronecker graph
 __global__ void stochastic_kronecker_graph_kernel(Edge *edge_list,
-												long *block_edges, 
-												long dim,
-												long *start_idx,
-												float *prob,
-												float *c_prob,
-												int k,
-												int n,
-												int npes) {
+                                            long *block_edges, 
+                                            long dim,
+                                            long *start_idx,
+                                            float *prob,
+                                            float *c_prob,
+                                            int k,
+                                            int n,
+                                            int npes) {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < n) {
         curandStateXORWOW_t rand_state;
@@ -61,12 +61,12 @@ __global__ void stochastic_kronecker_graph_kernel(Edge *edge_list,
 
 // Host function to create edge list on GPU
 Edge* create_edge_list_gpu(long *edges_dist,
-							long pe_edges,
-							long nodes_per_pe,
-							int npes,
-							float mat_prob[4],
-							int **node_edge_count,
-							float *time) {
+                        long pe_edges,
+                        long nodes_per_pe,
+                        int npes,
+                        float mat_prob[4],
+                        int **node_edge_count,
+                        float *time) {
     Edge *d_edge_list, *edge_list = (Edge*)malloc(pe_edges * sizeof(Edge));
     cudaCheckError(cudaMalloc((void**)&d_edge_list, pe_edges * sizeof(Edge)));
 
@@ -108,13 +108,13 @@ Edge* create_edge_list_gpu(long *edges_dist,
     // Execute kernel and measure time
     cudaCheckError(cudaEventRecord(start));
     stochastic_kronecker_graph_kernel<<<dimGrid, dimBlock>>>(d_edge_list,
-															d_block_edges,
-															nodes_per_pe, 
-															d_start_idx, 
-															d_prob,
-															d_c_prob,
-															log2(nodes_per_pe),
-															pe_edges, npes);
+                                        d_block_edges,
+                                        nodes_per_pe, 
+                                        d_start_idx, 
+                                        d_prob,
+                                        d_c_prob,
+                                        log2(nodes_per_pe),
+                                        pe_edges, npes);
     cudaCheckError(cudaEventRecord(stop));
     cudaCheckError(cudaDeviceSynchronize());
     cudaCheckError(cudaEventElapsedTime(time, start, stop));
