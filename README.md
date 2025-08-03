@@ -8,9 +8,7 @@
 
 ## Overview
 
-A production-grade, high-performance implementation of the Stochastic Kronecker Graph generation algorithm, designed for generating massive-scale graphs with realistic properties. This implementation leverages modern C++20 features, MPI for distributed computing, and optional CUDA GPU acceleration.
-
-## Mathematical Foundation
+A production-grade, high-performance implementation of the Stochastic Kronecker Graph generation algorithm, designed for generating massive-scale graphs with realistic properties. This implementation leverages modern C++20 features, MPI for distributed computing, and optional CUDA GPU acceleration. (This was built as an aside for the Summer 2023 course "C++ for C programmers" at Columbia.)
 
 ### The Kronecker Product
 
@@ -26,29 +24,21 @@ a_{21}\mathbf{B} & a_{22}\mathbf{B} & \cdots & a_{2n}\mathbf{B} \\
 a_{m1}\mathbf{B} & a_{m2}\mathbf{B} & \cdots & a_{mn}\mathbf{B}
 \end{bmatrix}$$
 
-### Stochastic Kronecker Graphs
 
 The SKG model generates graphs through recursive Kronecker products of a small **initiator matrix** $\mathbf{P} \in [0,1]^{2 \times 2}$.
 
-#### Initiator Matrix
+The seed or **initiator matrix** has the form:
 $$\mathbf{P} = \begin{bmatrix} a & b \\ c & d \end{bmatrix}$$
-where $a, b, c, d \in [0,1]$ and $a + b + c + d = 1$
-
-These values represent probabilities:
-- **a**: probability of edges within the same community
-- **b, c**: probabilities of edges between communities
-- **d**: probability of edges between distant nodes
+where $a, b, c, d \in [0,1]$ and $a + b + c + d = 1$.
+These values represent probabilities; $a$ is the probability of edges within the same community, $b$ and $c$ are the probabilities of edges between different communities, and $d$ is the probability of edges between distant nodes.
 
 #### Graph Generation Process
 
-For a graph with $N = 2^k$ nodes:
+For a graph with $N = 2^k$ nodes, the adjacency matrix $\mathbf{G} \in [0,1]^{N \times N}$ is generated as follows:
+$$G[i,j] = \prod_{l=0}^{k-1} P[i_l, j_l]$
 
-1. **Recursive Structure**: The adjacency matrix is conceptually:
-   $$\mathbf{G} = \mathbf{P} \otimes \mathbf{P} \otimes \cdots \otimes \mathbf{P} \quad \text{(k times)}$$
-
-2. **Probabilistic Interpretation**: Each entry $G[i,j]$ represents the probability of edge $(i,j)$ existing.
-
-3. **Efficient Generation**: Instead of computing the full Kronecker product (which would require $O(N^2)$ space), we use a recursive algorithm:
+where $i_l$ and $j_l$ are the $l$-th bits of the binary representations of $i$ and $j$. This means that each entry in the adjacency matrix
+(with edge weights interpreted as probabilities) is computed by recursively applying the initiator matrix. Instead of computing the full Kronecker product (which would require $O(N^2)$ space), we use a recursive algorithm, sketched below:
 
 ```python
 def generate_edge(k, P):
@@ -61,48 +51,17 @@ def generate_edge(k, P):
     return (row, col)
 ```
 
-### Mathematical Properties
-
-#### 1. **Degree Distribution**
-The expected degree of node $i$ follows:
-$$E[\text{deg}(i)] = \sum_j \mathbf{P}^{(k)}[i,j]$$
-
-For appropriate choices of $\mathbf{P}$, this produces power-law degree distributions:
-$$P(\text{degree} = d) \propto d^{-\gamma}$$
-
-#### 2. **Clustering Coefficient**
-The local clustering coefficient exhibits hierarchical structure:
-$$C(k) = \frac{a^3 + b^3 + c^3 + d^3}{(a^2 + b^2 + c^2 + d^2)^{3/2}}$$
-
-#### 3. **Small-World Property**
-The average path length scales as:
-$$L \propto \log N$$
-
-#### 4. **Self-Similarity**
-The graph exhibits fractal properties with dimension:
-$$D = \frac{\log(a + b + c + d)}{\log 2}$$
 
 ### Parallelization Strategy
 
 #### Edge Distribution
 For $p$ MPI processes ($p = 2^m$), edges are distributed using:
-
 $$E[i,j] = E_{\text{total}} \times \prod_{l=0}^{m-1} \mathbf{P}[i_l, j_l]$$
-
 where $i_l$ and $j_l$ are the $l$-th bits of process indices $i$ and $j$.
-
-#### Load Balancing
-Expected edges per process:
+How do we balance loads? Check that the expected edges per process is
 $$\mu = \frac{E_{\text{total}}}{p}, \quad \sigma^2 = \frac{E_{\text{total}} \times \text{Var}(\mathbf{P})}{p}$$
 
 ## Features
-
-### Core Capabilities
-- **Modern C++20**: Concepts, ranges, coroutines, improved constexpr
-- **Distributed Computing**: MPI-based parallel generation
-- **GPU Acceleration**: CUDA kernels for 10-100x speedup
-- **Memory Efficient**: CSR format, streaming I/O
-- **Production Quality**: Google C++ Style Guide compliant
 
 ### Performance Characteristics
 - **Scalability**: Tested up to $2^{30}$ nodes (1 billion+)
@@ -110,10 +69,6 @@ $$\mu = \frac{E_{\text{total}}}{p}, \quad \sigma^2 = \frac{E_{\text{total}} \tim
 - **Time Complexity**: $O(E/p)$ per process
 - **GPU Speedup**: 10-100x for edge generation
 
-### Output Formats
-- **Binary**: Efficient storage with header metadata
-- **Text**: Human-readable edge list
-- **Statistics**: Graph properties and performance metrics
 
 ## Building the Project
 
@@ -127,8 +82,8 @@ $$\mu = \frac{E_{\text{total}}}{p}, \quad \sigma^2 = \frac{E_{\text{total}} \tim
 
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/skg.git
-cd skg
+git clone https://github.com/ekene-e/cudakron.git
+cd cudakron
 
 # Create build directory
 mkdir build && cd build
@@ -171,6 +126,7 @@ mpiexec -n 8 skg -s 24 -e 20 -a 0.45 -b 0.25 -c 0.25
 # GPU acceleration
 mpiexec -n 4 skg -s 26 -e 32 --gpu
 ```
+Note that some of these are quite large, so you may want to use `--format text` to output a human-readable edge list instead of the binary CSR format.
 
 ### Command-Line Options
 
@@ -268,18 +224,6 @@ io.StreamEdges(csr_matrix, [](const Edge& e) {
 });
 ```
 
-### Integration with Graph Analytics
-
-The CSR format output is compatible with popular graph libraries:
-- **GraphBLAS**: Direct CSR import
-- **NetworkX**: Edge list import
-- **SNAP**: Binary format support
-- **Gunrock**: GPU analytics
-
-## Contributing
-
-We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
 ### Development Setup
 
 ```bash
@@ -296,28 +240,6 @@ clang-format -i src/*.cpp include/*.hpp
 clang-tidy src/*.cpp -- -std=c++20
 ```
 
-## Publications
-
-If you use this software in your research, please cite:
-
-```bibtex
-@article{skg2024,
-  title={High-Performance Stochastic Kronecker Graph Generation},
-  author={Your Name},
-  journal={arXiv preprint},
-  year={2024}
-}
-
-@article{leskovec2010kronecker,
-  title={Kronecker Graphs: An Approach to Modeling Networks},
-  author={Leskovec, J. and Chakrabarti, D. and Kleinberg, J. and Faloutsos, C. and Ghahramani, Z.},
-  journal={Journal of Machine Learning Research},
-  volume={11},
-  pages={985--1042},
-  year={2010}
-}
-```
-
 ## License
 
 MIT License - see [LICENSE](LICENSE) file for details.
@@ -327,9 +249,3 @@ MIT License - see [LICENSE](LICENSE) file for details.
 - Original SKG algorithm: Leskovec et al., JMLR 2010
 - MPI optimization strategies: Graph 500 benchmark
 - CUDA implementation inspired by cuGraph
-
----
-
-**Contact**: [your.email@example.com](mailto:your.email@example.com)  
-**Issues**: [GitHub Issues](https://github.com/yourusername/skg/issues)  
-**Documentation**: [Full API Docs](https://yourusername.github.io/skg/)
