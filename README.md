@@ -28,7 +28,9 @@ a_{m1}\mathbf{B} & a_{m2}\mathbf{B} & \cdots & a_{mn}\mathbf{B}
 The SKG model generates graphs through recursive Kronecker products of a small **initiator matrix** $\mathbf{P} \in [0,1]^{2 \times 2}$.
 
 The seed or **initiator matrix** has the form:
+
 $$\mathbf{P} = \begin{bmatrix} a & b \\ c & d \end{bmatrix}$$
+
 where $a, b, c, d \in [0,1]$ and $a + b + c + d = 1$.
 These values represent probabilities; $a$ is the probability of edges within the same community, $b$ and $c$ are the probabilities of edges between different communities, and $d$ is the probability of edges between distant nodes.
 
@@ -60,6 +62,7 @@ $$E[i,j] = E_{\text{total}} \times \prod_{l=0}^{m-1} \mathbf{P}[i_l, j_l]$$
 where $i_l$ and $j_l$ are the $l$-th bits of process indices $i$ and $j$.
 How do we balance loads? Check that the expected edges per process is
 $$\mu = \frac{E_{\text{total}}}{p}, \quad \sigma^2 = \frac{E_{\text{total}} \times \text{Var}(\mathbf{P})}{p}$$
+and so we can use techniques like work stealing or dynamic load balancing to ensure all processes remain busy.
 
 ## Features
 
