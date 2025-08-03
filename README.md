@@ -29,15 +29,17 @@ The SKG model generates graphs through recursive Kronecker products of a small *
 
 The seed or **initiator matrix** has the form:
 
-$$\mathbf{P} = \begin{bmatrix} a & b \\ c & d \end{bmatrix}$$
+$$\mathbf{P} = \begin{bmatrix} a & b \\
+c & d \end{bmatrix}$$
 
 where $a, b, c, d \in [0,1]$ and $a + b + c + d = 1$.
 These values represent probabilities; $a$ is the probability of edges within the same community, $b$ and $c$ are the probabilities of edges between different communities, and $d$ is the probability of edges between distant nodes.
 
 #### Graph Generation Process
 
-For a graph with $N = 2^k$ nodes, the adjacency matrix $\mathbf{G} \in [0,1]^{N \times N}$ is generated as follows:
-$$G[i,j] = \prod_{l=0}^{k-1} P[i_l, j_l]$
+For a graph with $N = 2^k$ nodes, the adjacency matrix $\mathbf{G} \in [0,1]^{N \times N}$ is generated as
+
+$$G[i,j] = \prod_{l=0}^{k-1} P[i_l, j_l]$$
 
 where $i_l$ and $j_l$ are the $l$-th bits of the binary representations of $i$ and $j$. This means that each entry in the adjacency matrix
 (with edge weights interpreted as probabilities) is computed by recursively applying the initiator matrix. Instead of computing the full Kronecker product (which would require $O(N^2)$ space), we use a recursive algorithm, sketched below:
