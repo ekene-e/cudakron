@@ -12,7 +12,7 @@ A production-grade, high-performance implementation of the Stochastic Kronecker 
 
 ### The Kronecker Product
 
-The Stochastic Kronecker Graph (SKG) model is based on the **Kronecker product** of matrices, a fundamental operation in linear algebra.
+The Stochastic Kronecker Graph (SKG) model is based on the **Kronecker product** of matrices:
 
 #### Definition
 Given two matrices $\mathbf{A} \in \mathbb{R}^{m \times n}$ and $\mathbf{B} \in \mathbb{R}^{p \times q}$, their Kronecker product $\mathbf{A} \otimes \mathbf{B} \in \mathbb{R}^{mp \times nq}$ is defined as:
