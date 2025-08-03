@@ -192,7 +192,9 @@ $$\text{Efficiency}(p) = \frac{T(1)}{T(p)}$$
 ### Memory Usage
 
 Per process memory requirement:
+
 $$\text{Memory} = 8 \times \left(\frac{N}{p} + 1\right) + 8 \times \left(\frac{E}{p}\right) + 4 \times \left(\frac{E}{p}\right) \text{ bytes}$$
+
 $$\quad\quad\quad\quad\uparrow \text{ row\_ptr} \quad\quad\quad\uparrow \text{ col\_idx} \quad\uparrow \text{ values}$$
 
 Example ($2^{24}$ nodes, 320M edges, 16 processes):
