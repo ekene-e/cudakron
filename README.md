@@ -6,15 +6,9 @@
 [![CUDA](https://img.shields.io/badge/CUDA-12.3-green.svg)](https://developer.nvidia.com/cuda-toolkit)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-## Overview
-
-A production-grade, high-performance implementation of the Stochastic Kronecker Graph generation algorithm, designed for generating massive-scale graphs with realistic properties. This implementation leverages modern C++20 features, MPI for distributed computing, and optional CUDA GPU acceleration. (This was built as an aside for the Summer 2023 course "C++ for C programmers" at Columbia.)
-
-### The Kronecker Product
+A high-performance implementation of the Stochastic Kronecker Graph generation algorithm, designed for generating massive-scale graphs with realistic properties. (This was built as an aside for the Summer 2023 course "C++ for C programmers" at Columbia.)
 
 The Stochastic Kronecker Graph (SKG) model is based on the **Kronecker product** of matrices:
-
-#### Definition
 Given two matrices $\mathbf{A} \in \mathbb{R}^{m \times n}$ and $\mathbf{B} \in \mathbb{R}^{p \times q}$, their Kronecker product $\mathbf{A} \otimes \mathbf{B} \in \mathbb{R}^{mp \times nq}$ is defined as:
 
 $$\mathbf{A} \otimes \mathbf{B} = \begin{bmatrix}
@@ -35,8 +29,6 @@ c & d \end{bmatrix}$$
 where $a, b, c, d \in [0,1]$ and $a + b + c + d = 1$.
 These values represent probabilities; $a$ is the probability of edges within the same community, $b$ and $c$ are the probabilities of edges between different communities, and $d$ is the probability of edges between distant nodes.
 
-#### Graph Generation Process
-
 For a graph with $N = 2^k$ nodes, the adjacency matrix $\mathbf{G} \in [0,1]^{N \times N}$ is generated as
 
 $$G[i,j] = \prod_{l=0}^{k-1} P[i_l, j_l]$$
@@ -55,10 +47,6 @@ def generate_edge(k, P):
     return (row, col)
 ```
 
-
-### Parallelization Strategy
-
-#### Edge Distribution
 For $p$ MPI processes ($p = 2^m$), edges are distributed using:
 $$E[i,j] = E_{\text{total}} \times \prod_{l=0}^{m-1} \mathbf{P}[i_l, j_l]$$
 where $i_l$ and $j_l$ are the $l$-th bits of process indices $i$ and $j$.
@@ -66,24 +54,17 @@ How do we balance loads? Check that the expected edges per process is
 $$\mu = \frac{E_{\text{total}}}{p}, \quad \sigma^2 = \frac{E_{\text{total}} \times \text{Var}(\mathbf{P})}{p}$$
 and so we can use techniques like work stealing or dynamic load balancing to ensure all processes remain busy.
 
-## Features
-
-### Performance Characteristics
+A few performance features of this implementation:
 - **Scalability**: Tested up to $2^{30}$ nodes (1 billion+)
 - **Memory**: $O(E/p)$ per process for $E$ edges, $p$ processes
 - **Time Complexity**: $O(E/p)$ per process
 - **GPU Speedup**: 10-100x for edge generation
 
-
-## Building the Project
-
-### Prerequisites
+How does one build this project? Ensure you have the following prerequisites:
 - C++20 compliant compiler (GCC 11+, Clang 13+, MSVC 2022+)
 - CMake 3.20+
 - MPI implementation (OpenMPI, MPICH, MS-MPI)
 - CUDA Toolkit 11.0+ (optional)
-
-### Build Instructions
 
 ```bash
 # Clone repository
@@ -118,8 +99,6 @@ sudo make install
 | `SKG_ENABLE_LTO` | ON | Enable Link Time Optimization |
 
 ## Usage
-
-### Basic Usage
 
 ```bash
 # Generate graph with 2^20 nodes, edge factor 16
