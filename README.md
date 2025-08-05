@@ -1,5 +1,4 @@
 # CudaKron
-### High-Performance C++20 Implementation with MPI and CUDA Support
 
 [![C++20](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](https://en.cppreference.com/w/cpp/20)
 [![MPI](https://img.shields.io/badge/MPI-Enabled-green.svg)](https://www.mpi-forum.org/)
