@@ -46,18 +46,17 @@ def generate_edge(k, P):
     return (row, col)
 ```
 
-For $p$ MPI processes ($p = 2^m$), edges are distributed using:
+**Clarification:** For $p$ MPI processes ($p = 2^m$), edges are distributed using:
 $$E[i,j] = E_{\text{total}} \times \prod_{l=0}^{m-1} \mathbf{P}[i_l, j_l]$$
 where $i_l$ and $j_l$ are the $l$-th bits of process indices $i$ and $j$.
 How do we balance loads? Check that the expected edges per process is
 $$\mu = \frac{E_{\text{total}}}{p}, \quad \sigma^2 = \frac{E_{\text{total}} \times \text{Var}(\mathbf{P})}{p}$$
-and so we can use techniques like work stealing or dynamic load balancing to ensure all processes remain busy.
+and so we can use work stealing and dynamic load balancing to ensure all processes remain busy.
 
 A few performance features of this implementation:
-- **Scalability**: Tested up to $2^{30}$ nodes (1 billion+)
-- **Memory**: $O(E/p)$ per process for $E$ edges, $p$ processes
-- **Time Complexity**: $O(E/p)$ per process
-- **GPU Speedup**: 10-100x for edge generation
+- works for at least up to $2^{60}$ nodes
+- the memory is allocated as $O(E/p)$ per process for $E$ edges, $p$ processes and each process runs in time $O(E/p)$ very roughly
+- depending on the network being modelled by the SKG, the GPU speedup is 10-100x for edge generation
 
 How does one build this project? Ensure you have the following prerequisites:
 - C++20 compliant compiler (GCC 11+, Clang 13+, MSVC 2022+)
